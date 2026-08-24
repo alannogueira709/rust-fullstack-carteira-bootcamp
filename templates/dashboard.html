@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CapitalFlow | Wealth Management Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0B0F19',
+                            card: '#111827',
+                            border: '#1F2937',
+                            accent: '#3B82F6',
+                            cyan: '#06B6D4',
+                            emerald: '#10B981',
+                            rose: '#F43F5E'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #080D1A;
+            color: #F3F4F6;
+        }
+        .mono {
+            font-family: 'Space Mono', monospace;
+        }
+        .glass-card {
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+        .glass-card-hover:hover {
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.15);
+        }
+        .glow-accent {
+            box-shadow: 0 0 25px -5px rgba(59, 130, 246, 0.25);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0B0F19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1F2937;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #374151;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex antialiased selection:bg-blue-500 selection:text-white">
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-[#0B0F19]/95 border-r border-slate-800/80 flex flex-col justify-between p-5 z-20 shrink-0 sticky top-0 h-screen">
+        <div>
+            <!-- Logo Brand -->
+            <div class="flex items-center gap-3 px-2 py-3 mb-8">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-cyan-400 flex items-center justify-center text-white font-bold shadow-[0_0_20px_rgba(59,130,246,0.4)]">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5">
+                        CapitalFlow
+                    </h1>
+                    <p class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">Wealth Management</p>
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="space-y-1.5" id="nav-links">
+                <button onclick="switchTab('overview')" id="nav-btn-overview" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 bg-blue-600/15 text-blue-400 border border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                    </svg>
+                    <span>Dashboard</span>
+                </button>
+
+                <button onclick="switchTab('assets')" id="nav-btn-assets" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                    </svg>
+                    <span>Assets</span>
+                    <span class="ml-auto text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono">{{ summary.assets_count }}</span>
+                </button>
+
+                <button onclick="switchTab('performance')" id="nav-btn-performance" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    <span>Performance</span>
+                </button>
+
+                <button onclick="switchTab('transactions')" id="nav-btn-transactions" class="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>Transactions</span>
+                </button>
+            </nav>
+
+            <!-- Quick Action Button -->
+            <div class="mt-8">
+                <button onclick="openModal('modal-add-asset')" class="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-all shadow-[0_0_20px_rgba(59,130,246,0.35)] active:scale-[0.98]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    <span>Add Transaction / Asset</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Sidebar Footer & User Profile -->
+        <div class="space-y-4 pt-6 border-t border-slate-800/80">
+            <div class="flex items-center gap-3 p-2 rounded-xl bg-slate-900/60 border border-slate-800/60">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                    {{ username.chars().next().unwrap_or('U') }}
+                </div>
+                <div class="overflow-hidden">
+                    <p class="text-sm font-semibold text-white truncate">{{ username }}</p>
+                    <span class="inline-flex items-center gap-1 text-[11px] text-emerald-400">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Investor Pro
+                    </span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between text-xs text-slate-400 px-1">
+                <a href="/logout" class="flex items-center gap-1.5 text-rose-400 hover:text-rose-300 font-medium transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                    </svg>
+                    <span>Sair</span>
+                </a>
+                <span class="text-[11px] text-slate-500 font-mono">v0.2.0 • Axum</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT WRAPPER -->
+    <main class="flex-1 flex flex-col min-w-0 bg-[#080D1A] overflow-y-auto">
+
+        <!-- TOP BAR -->
+        <header class="h-18 px-8 py-4 border-b border-slate-800/80 flex items-center justify-between bg-[#0B0F19]/60 backdrop-blur-md sticky top-0 z-10">
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2 text-xs font-semibold text-slate-400">
+                    <span class="text-slate-200">Markets</span>
+                    <span class="text-slate-600">/</span>
+                    <span class="hover:text-slate-300 cursor-pointer">Watchlist</span>
+                    <span class="text-slate-600">/</span>
+                    <span class="hover:text-slate-300 cursor-pointer">News</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button class="p-2 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                    </svg>
+                </button>
+
+                <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <span>Connect Broker</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- VIEW 1: OVERVIEW (DASHBOARD) -->
+        <div id="view-overview" class="p-8 space-y-8 animate-fade-in">
+            <!-- Header Section -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-3xl font-extrabold tracking-tight text-white">Overview</h2>
+                    <p class="text-sm text-slate-400 mt-1">Visão consolidada do seu patrimônio e performance de investimentos.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="openModal('modal-add-asset')" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span>Novo Ativo</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Top Grid: Total Balance Chart Card & Asset Allocation -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Total Balance Chart Card (Span 2) -->
+                <div class="lg:col-span-2 glass-card rounded-2xl p-6 relative overflow-hidden flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Balance</span>
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                </svg>
+                                {% if summary.total_profit_loss >= 0.0 %}+{% endif %}{{ format!("{:.2}", summary.total_profit_loss_pct) }}% Total
+                            </span>
+                        </div>
+                        <div class="mt-2 flex items-baseline gap-3">
+                            <h3 class="text-4xl font-extrabold text-white tracking-tight mono">
+                                ${{ format!("{:.2}", summary.total_balance) }}
+                            </h3>
+                            <span class="text-xs text-slate-400 font-medium">
+                                Investido: ${{ format!("{:.2}", summary.total_invested) }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- SVG Sparkline Area Graph -->
+                    <div class="mt-8 h-48 w-full relative">
+                        <svg class="w-full h-full overflow-visible" viewBox="0 0 600 180" preserveAspectRatio="none">
+                            <defs>
+                                <linearGradient id="balanceGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.35"/>
+                                    <stop offset="100%" stop-color="#3B82F6" stop-opacity="0.0"/>
+                                </linearGradient>
+                            </defs>
+                            <!-- Grid lines -->
+                            <line x1="0" y1="40" x2="600" y2="40" stroke="#1F2937" stroke-dasharray="3 3"/>
+                            <line x1="0" y1="90" x2="600" y2="90" stroke="#1F2937" stroke-dasharray="3 3"/>
+                            <line x1="0" y1="140" x2="600" y2="140" stroke="#1F2937" stroke-dasharray="3 3"/>
+
+                            <!-- Area Fill -->
+                            <path d="M0,150 Q100,120 180,140 T320,100 T440,70 T540,80 T600,30 L600,180 L0,180 Z" fill="url(#balanceGrad)"/>
+                            <!-- Stroke Line -->
+                            <path d="M0,150 Q100,120 180,140 T320,100 T440,70 T540,80 T600,30" fill="none" stroke="#60A5FA" stroke-width="3.5" stroke-linecap="round"/>
+
+                            <!-- Data Points -->
+                            <circle cx="180" cy="140" r="4.5" fill="#3B82F6" stroke="#93C5FD" stroke-width="2"/>
+                            <circle cx="320" cy="100" r="4.5" fill="#3B82F6" stroke="#93C5FD" stroke-width="2"/>
+                            <circle cx="440" cy="70" r="4.5" fill="#3B82F6" stroke="#93C5FD" stroke-width="2"/>
+                            <circle cx="600" cy="30" r="5" fill="#93C5FD" stroke="#FFFFFF" stroke-width="2"/>
+                        </svg>
+                        <div class="flex justify-between text-[11px] font-semibold text-slate-500 mt-2 px-1">
+                            <span>Jan</span>
+                            <span>Fev</span>
+                            <span>Mar</span>
+                            <span>Abr</span>
+                            <span>Mai</span>
+                            <span>Jun</span>
+                            <span>Hoje</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Asset Allocation Donut Card -->
+                <div class="glass-card rounded-2xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Asset Allocation</span>
+                            <span class="text-xs text-blue-400 font-semibold cursor-pointer hover:underline" onclick="switchTab('assets')">Ver tudo</span>
+                        </div>
+
+                        <!-- Donut Graphic Simulation -->
+                        <div class="relative flex items-center justify-center my-6">
+                            <svg class="w-44 h-44 transform -rotate-90" viewBox="0 0 100 100">
+                                <!-- Background Circle -->
+                                <circle cx="50" cy="50" r="38" stroke="#1E293B" stroke-width="12" fill="none"/>
+                                <!-- Stocks Arc (Blue) -->
+                                <circle cx="50" cy="50" r="38" stroke="#60A5FA" stroke-width="12" stroke-dasharray="150 240" stroke-dashoffset="0" fill="none"/>
+                                <!-- Crypto Arc (Emerald) -->
+                                <circle cx="50" cy="50" r="38" stroke="#34D399" stroke-width="12" stroke-dasharray="55 240" stroke-dashoffset="-150" fill="none"/>
+                                <!-- Fixed Income (Rose/Amber) -->
+                                <circle cx="50" cy="50" r="38" stroke="#F87171" stroke-width="12" stroke-dasharray="35 240" stroke-dashoffset="-205" fill="none"/>
+                            </svg>
+                            <div class="absolute text-center">
+                                <span class="text-2xl font-extrabold text-white block mono">{{ summary.assets_count }}</span>
+                                <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Ativos</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Legend Items -->
+                    <div class="space-y-2.5 pt-4 border-t border-slate-800">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="flex items-center gap-2 text-slate-300 font-medium">
+                                <span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span>
+                                Ações & Stocks
+                            </span>
+                            <span class="font-bold text-white mono">{{ format!("{:.1}", summary.stocks_pct) }}%</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="flex items-center gap-2 text-slate-300 font-medium">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                                Criptoativos
+                            </span>
+                            <span class="font-bold text-white mono">{{ format!("{:.1}", summary.crypto_pct) }}%</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="flex items-center gap-2 text-slate-300 font-medium">
+                                <span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span>
+                                Renda Fixa / Caixa
+                            </span>
+                            <span class="font-bold text-white mono">{{ format!("{:.1}", summary.fixed_income_pct) }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Grid: Top Gainers & Recent Activity -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Top Gainers Card -->
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-slate-400">Top Gainers</h4>
+                        <button onclick="switchTab('assets')" class="text-xs font-semibold text-blue-400 hover:text-blue-300 transition">View All</button>
+                    </div>
+                    <div class="space-y-4">
+                        {% for asset in assets %}
+                            {% if loop.index <= 3 %}
+                            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900/40 border border-slate-800/60 hover:border-slate-700 transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold text-xs mono">
+                                        {{ asset.get_ticker() }}
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-white">{{ asset.name }}</p>
+                                        <span class="text-xs text-slate-400">{{ asset.get_asset_type() }}</span>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-bold text-white mono">${{ format!("{:.2}", asset.unit_value) }}</p>
+                                    <span class="inline-flex items-center text-xs font-bold {% if asset.is_profit() %}text-emerald-400{% else %}text-rose-400{% endif %} mono">
+                                        {% if asset.is_profit() %}+{% endif %}{{ format!("{:.2}", asset.profit_loss_pct()) }}%
+                                    </span>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Recent Activity Card -->
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-slate-400">Recent Activity</h4>
+                        <button onclick="switchTab('transactions')" class="text-xs font-semibold text-blue-400 hover:text-blue-300 transition">Ver Histórico</button>
+                    </div>
+                    <div class="space-y-4">
+                        {% for tx in transactions %}
+                            {% if loop.index <= 3 %}
+                            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-900/40 border border-slate-800/60">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-2.5 h-2.5 rounded-full {% if tx.tx_type == "Buy" %}bg-blue-400{% else if tx.tx_type == "Dividend" %}bg-emerald-400{% else %}bg-amber-400{% endif %}"></div>
+                                    <div>
+                                        <p class="text-sm font-semibold text-white">{{ tx.tx_type }} {{ format!("{:.0}", tx.quantity) }} {{ tx.ticker }}</p>
+                                        <span class="text-xs text-slate-400">{{ tx.status }}</span>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-sm font-bold mono {% if tx.tx_type == "Dividend" or tx.tx_type == "Sell" %}text-emerald-400{% else %}text-slate-300{% endif %}">
+                                        {% if tx.tx_type == "Dividend" %}+{% else if tx.tx_type == "Buy" %}-{% endif %}${{ format!("{:.2}", tx.total_value) }}
+                                    </span>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 2: ASSETS (MY PORTFOLIO) -->
+        <div id="view-assets" class="p-8 space-y-6 hidden animate-fade-in">
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-3xl font-extrabold tracking-tight text-white">My Portfolio</h2>
+                    <p class="text-sm text-slate-400 mt-1">Gerencie e acompanhe a distribuição e rentabilidade dos seus ativos.</p>
+                </div>
+                <button onclick="openModal('modal-add-asset')" class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    <span>+ Add Asset</span>
+                </button>
+            </div>
+
+            <!-- Filter Pills and Search Bar -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 py-2">
+                <!-- Filter Pills -->
+                <div class="flex items-center gap-2 p-1 rounded-xl bg-slate-900/80 border border-slate-800">
+                    <button onclick="filterCategory('all')" id="filter-all" class="px-4 py-1.5 rounded-lg text-xs font-semibold transition bg-blue-600 text-white">All Assets</button>
+                    <button onclick="filterCategory('Stocks')" id="filter-stocks" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition">Stocks</button>
+                    <button onclick="filterCategory('Crypto')" id="filter-crypto" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition">Crypto</button>
+                    <button onclick="filterCategory('Fixed Income')" id="filter-fixed" class="px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition">Fixed Income</button>
+                </div>
+
+                <!-- Search Input -->
+                <div class="relative w-full sm:w-72">
+                    <svg class="w-4 h-4 absolute left-3.5 top-1/2 transform -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <input type="text" id="asset-search-input" onkeyup="searchAssetsTable()" placeholder="Search ticker or name..." class="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+                </div>
+            </div>
+
+            <!-- Assets Table -->
+            <div class="glass-card rounded-2xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm" id="assets-table">
+                        <thead class="bg-slate-900/80 border-b border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                            <tr>
+                                <th class="py-4 px-6">Ticker</th>
+                                <th class="py-4 px-6">Name</th>
+                                <th class="py-4 px-6 text-right">Quantity</th>
+                                <th class="py-4 px-6 text-right">Avg. Price</th>
+                                <th class="py-4 px-6 text-right">Current Price</th>
+                                <th class="py-4 px-6 text-right">Total Value</th>
+                                <th class="py-4 px-6 text-right">P/L %</th>
+                                <th class="py-4 px-6 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/60" id="assets-table-body">
+                            {% for asset in assets %}
+                            <tr class="asset-row hover:bg-slate-800/30 transition group" data-category="{{ asset.get_asset_type() }}" data-search="{{ asset.get_ticker().to_lowercase() }} {{ asset.name.to_lowercase() }}">
+                                <td class="py-4 px-6">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold font-mono {% if asset.get_asset_type() == "Crypto" %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20{% else if asset.get_asset_type() == "Fixed Income" %}bg-purple-500/10 text-purple-400 border border-purple-500/20{% else %}bg-blue-500/10 text-blue-400 border border-blue-500/20{% endif %}">
+                                        {{ asset.get_ticker() }}
+                                    </span>
+                                </td>
+                                <td class="py-4 px-6">
+                                    <div class="font-semibold text-white">{{ asset.name }}</div>
+                                    <div class="text-xs text-slate-400">{{ asset.get_asset_type() }}</div>
+                                </td>
+                                <td class="py-4 px-6 text-right font-mono text-slate-300">{{ format!("{:.2}", asset.get_quantity()) }}</td>
+                                <td class="py-4 px-6 text-right font-mono text-slate-300">${{ format!("{:.2}", asset.get_avg_price()) }}</td>
+                                <td class="py-4 px-6 text-right font-mono font-semibold text-white">${{ format!("{:.2}", asset.unit_value) }}</td>
+                                <td class="py-4 px-6 text-right font-mono font-bold text-white">${{ format!("{:.2}", asset.total_value()) }}</td>
+                                <td class="py-4 px-6 text-right">
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold font-mono {% if asset.is_profit() %}bg-emerald-500/10 text-emerald-400{% else %}bg-rose-500/10 text-rose-400{% endif %}">
+                                        {% if asset.is_profit() %}+{% endif %}{{ format!("{:.2}", asset.profit_loss_pct()) }}%
+                                    </span>
+                                </td>
+                                <td class="py-4 px-6 text-center">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <!-- Edit Action Button -->
+                                        <button onclick="editAssetModal({{ asset.id }}, '{{ asset.get_ticker() }}', '{{ asset.name }}', '{{ asset.get_asset_type() }}', {{ asset.get_quantity() }}, {{ asset.unit_value }}, {{ asset.get_avg_price() }})" class="p-1.5 rounded-lg text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 transition" title="Editar">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                            </svg>
+                                        </button>
+                                        <!-- Delete Action Form -->
+                                        <form method="POST" action="/assets/delete" onsubmit="return confirm('Deseja realmente excluir o ativo {{ asset.name }}?');" class="inline">
+                                            <input type="hidden" name="id" value="{{ asset.id }}">
+                                            <button type="submit" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition" title="Excluir">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 3: PERFORMANCE ANALYSIS -->
+        <div id="view-performance" class="p-8 space-y-8 hidden animate-fade-in">
+            <div>
+                <h2 class="text-3xl font-extrabold tracking-tight text-white">Performance Analysis</h2>
+                <p class="text-sm text-slate-400 mt-1">Análise detalhada de rentabilidade, risco e exposição setorial.</p>
+            </div>
+
+            <!-- Performance Growth & Benchmarks -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Portfolio Growth Chart (Span 2) -->
+                <div class="lg:col-span-2 glass-card rounded-2xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Portfolio Growth</span>
+                                <div class="flex items-baseline gap-2 mt-1">
+                                    <h3 class="text-3xl font-extrabold text-white mono">${{ format!("{:.2}", summary.total_balance) }}</h3>
+                                    <span class="text-xs font-bold text-emerald-400 mono">+14.2% (1Y)</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1 p-1 rounded-xl bg-slate-900 border border-slate-800 text-[11px] font-semibold">
+                                <button class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white">1M</button>
+                                <button class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white">6M</button>
+                                <button class="px-2.5 py-1 rounded-lg bg-blue-600 text-white">1Y</button>
+                                <button class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white">YTD</button>
+                                <button class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white">All</button>
+                            </div>
+                        </div>
+
+                        <!-- Area Chart SVG -->
+                        <div class="mt-8 h-48 w-full">
+                            <svg class="w-full h-full" viewBox="0 0 600 160" preserveAspectRatio="none">
+                                <path d="M0,130 Q80,140 150,110 T300,120 T420,70 T520,60 T600,40 L600,160 L0,160 Z" fill="url(#balanceGrad)"/>
+                                <path d="M0,130 Q80,140 150,110 T300,120 T420,70 T520,60 T600,40" fill="none" stroke="#60A5FA" stroke-width="3"/>
+                            </svg>
+                            <div class="flex justify-between text-[11px] font-semibold text-slate-500 mt-2">
+                                <span>Jan</span><span>Mar</span><span>Mai</span><span>Jul</span><span>Set</span><span>Nov</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Benchmarks Card -->
+                <div class="space-y-4">
+                    <div class="glass-card rounded-2xl p-5">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <p class="text-[11px] font-bold uppercase text-slate-400">VS S&P 500</p>
+                                <h4 class="text-2xl font-extrabold text-white mono mt-1">+12.4%</h4>
+                            </div>
+                            <span class="px-2 py-0.5 rounded-md text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">+1.8% Alpha</span>
+                        </div>
+                        <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden mt-3">
+                            <div class="h-full rounded-full bg-emerald-400" style="width: 78%"></div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-2xl p-5">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <p class="text-[11px] font-bold uppercase text-slate-400">VS CDI / Selic</p>
+                                <h4 class="text-2xl font-extrabold text-white mono mt-1">+10.1%</h4>
+                            </div>
+                            <span class="px-2 py-0.5 rounded-md text-xs font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">+4.1% Alpha</span>
+                        </div>
+                        <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden mt-3">
+                            <div class="h-full rounded-full bg-blue-400" style="width: 65%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Metrics & Sector Exposure -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- 4 Risk Metrics -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="glass-card rounded-2xl p-5">
+                        <span class="text-xs text-slate-400 font-medium">Volatility (1Y)</span>
+                        <h4 class="text-2xl font-bold text-white mono mt-2">12.4%</h4>
+                    </div>
+                    <div class="glass-card rounded-2xl p-5">
+                        <span class="text-xs text-slate-400 font-medium">Sharpe Ratio</span>
+                        <h4 class="text-2xl font-bold text-white mono mt-2">1.42</h4>
+                    </div>
+                    <div class="glass-card rounded-2xl p-5">
+                        <span class="text-xs text-slate-400 font-medium">Max Drawdown</span>
+                        <h4 class="text-2xl font-bold text-rose-400 mono mt-2">-8.5%</h4>
+                    </div>
+                    <div class="glass-card rounded-2xl p-5">
+                        <span class="text-xs text-slate-400 font-medium">Beta</span>
+                        <h4 class="text-2xl font-bold text-white mono mt-2">0.95</h4>
+                    </div>
+                </div>
+
+                <!-- Sector Exposure -->
+                <div class="glass-card rounded-2xl p-6 space-y-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-slate-400">Sector Exposure</h4>
+                        <span class="text-xs text-slate-500 font-mono">% of Portfolio</span>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs font-semibold text-slate-300 mb-1">
+                            <span>Technology</span>
+                            <span class="font-mono">35%</span>
+                        </div>
+                        <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+                            <div class="h-full rounded-full bg-blue-500" style="width: 35%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs font-semibold text-slate-300 mb-1">
+                            <span>Financials</span>
+                            <span class="font-mono">25%</span>
+                        </div>
+                        <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+                            <div class="h-full rounded-full bg-cyan-400" style="width: 25%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs font-semibold text-slate-300 mb-1">
+                            <span>Crypto / Web3</span>
+                            <span class="font-mono">20%</span>
+                        </div>
+                        <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+                            <div class="h-full rounded-full bg-emerald-400" style="width: 20%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs font-semibold text-slate-300 mb-1">
+                            <span>Fixed Income / Treasury</span>
+                            <span class="font-mono">15%</span>
+                        </div>
+                        <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+                            <div class="h-full rounded-full bg-purple-400" style="width: 15%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 4: TRANSACTIONS -->
+        <div id="view-transactions" class="p-8 space-y-6 hidden animate-fade-in">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-3xl font-extrabold tracking-tight text-white">Transaction History</h2>
+                    <p class="text-sm text-slate-400 mt-1">Histórico completo de compras, vendas e proventos recebidos.</p>
+                </div>
+                <button onclick="openModal('modal-add-transaction')" class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    <span>+ Add Transaction</span>
+                </button>
+            </div>
+
+            <!-- Stats Banner -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <div class="glass-card rounded-2xl p-5">
+                    <span class="text-xs text-slate-400 font-bold uppercase">Total Volume (30D)</span>
+                    <h3 class="text-2xl font-extrabold text-white mono mt-1">$124,500.00</h3>
+                </div>
+                <div class="glass-card rounded-2xl p-5">
+                    <span class="text-xs text-slate-400 font-bold uppercase">Net Cash Flow</span>
+                    <h3 class="text-2xl font-extrabold text-rose-400 mono mt-1">-$12,450.00</h3>
+                </div>
+                <div class="glass-card rounded-2xl p-5">
+                    <span class="text-xs text-slate-400 font-bold uppercase">Dividends (YTD)</span>
+                    <h3 class="text-2xl font-extrabold text-emerald-400 mono mt-1">+$4,230.50</h3>
+                </div>
+            </div>
+
+            <!-- Transactions Table -->
+            <div class="glass-card rounded-2xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-900/80 border-b border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                            <tr>
+                                <th class="py-4 px-6">Asset</th>
+                                <th class="py-4 px-6">Type</th>
+                                <th class="py-4 px-6 text-right">Amount</th>
+                                <th class="py-4 px-6 text-right">Price</th>
+                                <th class="py-4 px-6 text-right">Total</th>
+                                <th class="py-4 px-6 text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/60">
+                            {% for tx in transactions %}
+                            <tr class="hover:bg-slate-800/30 transition">
+                                <td class="py-4 px-6">
+                                    <div class="font-semibold text-white">{{ tx.asset_name }}</div>
+                                    <div class="text-xs text-slate-400 font-mono">{{ tx.ticker }}</div>
+                                </td>
+                                <td class="py-4 px-6">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold {% if tx.tx_type == "Buy" %}bg-blue-500/10 text-blue-400 border border-blue-500/20{% else if tx.tx_type == "Dividend" %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20{% else %}bg-amber-500/10 text-amber-400 border border-amber-500/20{% endif %}">
+                                        {{ tx.tx_type }}
+                                    </span>
+                                </td>
+                                <td class="py-4 px-6 text-right font-mono text-slate-300">{{ format!("{:.2}", tx.quantity) }}</td>
+                                <td class="py-4 px-6 text-right font-mono text-slate-300">${{ format!("{:.2}", tx.price) }}</td>
+                                <td class="py-4 px-6 text-right font-mono font-bold {% if tx.tx_type == "Dividend" or tx.tx_type == "Sell" %}text-emerald-400{% else %}text-slate-200{% endif %}">
+                                    {% if tx.tx_type == "Dividend" %}+{% else if tx.tx_type == "Buy" %}-{% endif %}${{ format!("{:.2}", tx.total_value) }}
+                                </td>
+                                <td class="py-4 px-6 text-center">
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300">
+                                        <span class="w-1.5 h-1.5 rounded-full {% if tx.status == "Completed" %}bg-emerald-400{% else %}bg-amber-400{% endif %}"></span>
+                                        {{ tx.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL: ADD ASSET -->
+    <div id="modal-add-asset" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-[#111827] border border-slate-700/80 rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                    Novo Ativo na Carteira
+                </h3>
+                <button onclick="closeModal('modal-add-asset')" class="text-slate-400 hover:text-white">&times;</button>
+            </div>
+
+            <form method="POST" action="/assets/create" class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Ticker / Código</label>
+                        <input type="text" name="ticker" placeholder="ex: AAPL, BTC, PETR4" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm focus:border-blue-500 focus:outline-none uppercase font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Nome do Ativo</label>
+                        <input type="text" name="name" placeholder="ex: Apple Inc." required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm focus:border-blue-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Categoria</label>
+                        <select name="asset_type" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm focus:border-blue-500 focus:outline-none">
+                            <option value="Stocks">Ações / Stocks</option>
+                            <option value="Crypto">Criptoativos</option>
+                            <option value="Fixed Income">Renda Fixa</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Quantidade</label>
+                        <input type="number" step="any" name="quantity" value="1.0" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm focus:border-blue-500 focus:outline-none font-mono">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Preço Atual ($)</label>
+                        <input type="number" step="any" name="unit_value" placeholder="0.00" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm focus:border-blue-500 focus:outline-none font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Preço Médio Pago ($)</label>
+                        <input type="number" step="any" name="avg_price" placeholder="0.00" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm focus:border-blue-500 focus:outline-none font-mono">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+                    <button type="button" onclick="closeModal('modal-add-asset')" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-400 hover:text-white">Cancelar</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.3)]">Salvar Ativo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: EDIT ASSET -->
+    <div id="modal-edit-asset" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-[#111827] border border-slate-700/80 rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+                    Editar Ativo
+                </h3>
+                <button onclick="closeModal('modal-edit-asset')" class="text-slate-400 hover:text-white">&times;</button>
+            </div>
+
+            <form method="POST" action="/assets/update" class="space-y-4">
+                <input type="hidden" id="edit-asset-id" name="id">
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Ticker</label>
+                        <input type="text" id="edit-asset-ticker" name="ticker" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm focus:border-blue-500 focus:outline-none uppercase font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Nome do Ativo</label>
+                        <input type="text" id="edit-asset-name" name="name" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm focus:border-blue-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Categoria</label>
+                        <select id="edit-asset-type" name="asset_type" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm focus:border-blue-500 focus:outline-none">
+                            <option value="Stocks">Ações / Stocks</option>
+                            <option value="Crypto">Criptoativos</option>
+                            <option value="Fixed Income">Renda Fixa</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Quantidade</label>
+                        <input type="number" step="any" id="edit-asset-quantity" name="quantity" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm focus:border-blue-500 focus:outline-none font-mono">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Preço Atual ($)</label>
+                        <input type="number" step="any" id="edit-asset-unit-value" name="unit_value" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm focus:border-blue-500 focus:outline-none font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Preço Médio Pago ($)</label>
+                        <input type="number" step="any" id="edit-asset-avg-price" name="avg_price" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm focus:border-blue-500 focus:outline-none font-mono">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+                    <button type="button" onclick="closeModal('modal-edit-asset')" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-400 hover:text-white">Cancelar</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-semibold bg-cyan-600 hover:bg-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)]">Atualizar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD TRANSACTION -->
+    <div id="modal-add-transaction" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-[#111827] border border-slate-700/80 rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                    Nova Transação
+                </h3>
+                <button onclick="closeModal('modal-add-transaction')" class="text-slate-400 hover:text-white">&times;</button>
+            </div>
+
+            <form method="POST" action="/transactions/create" class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Ticker</label>
+                        <input type="text" name="ticker" placeholder="ex: AAPL" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm focus:border-blue-500 focus:outline-none uppercase font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Nome</label>
+                        <input type="text" name="asset_name" placeholder="ex: Apple Inc." required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm focus:border-blue-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Tipo</label>
+                        <select name="tx_type" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm focus:border-blue-500 focus:outline-none">
+                            <option value="Buy">Compra</option>
+                            <option value="Sell">Venda</option>
+                            <option value="Dividend">Dividendo</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Quantidade</label>
+                        <input type="number" step="any" name="quantity" value="1.0" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm focus:border-blue-500 focus:outline-none font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Preço ($)</label>
+                        <input type="number" step="any" name="price" placeholder="0.00" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-sm focus:border-blue-500 focus:outline-none font-mono">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+                    <button type="button" onclick="closeModal('modal-add-transaction')" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-400 hover:text-white">Cancelar</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.3)]">Registrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT CONTROLLERS -->
+    <script>
+        // Tab switching controller
+        function switchTab(tabId) {
+            const views = ['overview', 'assets', 'performance', 'transactions'];
+            views.forEach(v => {
+                const el = document.getElementById('view-' + v);
+                const btn = document.getElementById('nav-btn-' + v);
+                if (v === tabId) {
+                    el.classList.remove('hidden');
+                    btn.className = "w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 bg-blue-600/15 text-blue-400 border border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.15)]";
+                } else {
+                    el.classList.add('hidden');
+                    btn.className = "w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50";
+                }
+            });
+            window.location.hash = tabId;
+        }
+
+        // Auto-switch based on URL hash
+        window.addEventListener('DOMContentLoaded', () => {
+            const hash = window.location.hash.replace('#', '');
+            if (['overview', 'assets', 'performance', 'transactions'].includes(hash)) {
+                switchTab(hash);
+            }
+        });
+
+        // Modal Helpers
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        // Edit Asset Modal Population
+        function editAssetModal(id, ticker, name, assetType, quantity, unitValue, avgPrice) {
+            document.getElementById('edit-asset-id').value = id;
+            document.getElementById('edit-asset-ticker').value = ticker;
+            document.getElementById('edit-asset-name').value = name;
+            document.getElementById('edit-asset-type').value = assetType;
+            document.getElementById('edit-asset-quantity').value = quantity;
+            document.getElementById('edit-asset-unit-value').value = unitValue;
+            document.getElementById('edit-asset-avg-price').value = avgPrice;
+            openModal('modal-edit-asset');
+        }
+
+        // Filter Assets Table by Category
+        function filterCategory(cat) {
+            const rows = document.querySelectorAll('.asset-row');
+            const pills = ['all', 'stocks', 'crypto', 'fixed'];
+            pills.forEach(p => {
+                const btn = document.getElementById('filter-' + p);
+                if (p === cat.toLowerCase() || (cat === 'Fixed Income' && p === 'fixed') || (cat === 'all' && p === 'all')) {
+                    btn.className = "px-4 py-1.5 rounded-lg text-xs font-semibold transition bg-blue-600 text-white";
+                } else {
+                    btn.className = "px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition";
+                }
+            });
+
+            rows.forEach(r => {
+                const rowCat = r.getAttribute('data-category');
+                if (cat === 'all' || rowCat.toLowerCase() === cat.toLowerCase()) {
+                    r.style.display = '';
+                } else {
+                    r.style.display = 'none';
+                }
+            });
+        }
+
+        // Live Search Assets
+        function searchAssetsTable() {
+            const query = document.getElementById('asset-search-input').value.toLowerCase();
+            const rows = document.querySelectorAll('.asset-row');
+            rows.forEach(r => {
+                const data = r.getAttribute('data-search');
+                if (data.includes(query)) {
+                    r.style.display = '';
+                } else {
+                    r.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

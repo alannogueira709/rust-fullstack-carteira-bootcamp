@@ -6,7 +6,7 @@ use tracing_subscriber::{
     Layer, fmt::format::FmtSpan, layer::SubscriberExt, util::SubscriberInitExt,
 };
 
-use crate::routes;
+use crate::{repository::Repository, routes};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -32,8 +32,16 @@ impl App {
 
         tracing_subscriber::registry().with(layer).init();
 
-        dotenvy::dotenv()?;
+        dotenvy::dotenv().ok();
         let state = AppState::new().await?;
+
+        // Automatically ensure schema and migrations are ready
+        let repo = Repository {
+            db: state.db.clone(),
+        };
+        if let Err(e) = repo.ensure_schema().await {
+            tracing::warn!("Auto migration check note: {e}");
+        }
 
         let listener = TcpListener::bind("0.0.0.0:3000").await?;
         let router = Router::new()
@@ -41,7 +49,7 @@ impl App {
             .merge(routes::frontend::router())
             .with_state(state);
 
-        info!("Starting service");
+        info!("Starting service on http://localhost:3000");
 
         axum::serve(listener, router).await?;
 

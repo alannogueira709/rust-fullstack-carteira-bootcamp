@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{app::AppState, error::AppError, repository::Repository};
 
-const SECRET_KEY: &[u8] = b"im-so-secret";
+const SECRET_KEY: &[u8] = b"capitalflow-secret-key-safe-jwt-dio-rust-2026";
 
 pub struct UnauthenticatedUser {
     username: String,
@@ -46,6 +46,9 @@ impl UnauthenticatedUser {
             Err(err) => return Err(AppError::Database(err)),
         };
 
+        // Seed demo assets for new user
+        let _ = repository.seed_default_assets(user_record.id).await;
+
         Ok(User::new(user_record.id, user_record.username))
     }
 }
@@ -56,7 +59,7 @@ pub struct User {
 }
 
 impl User {
-    fn new(id: i64, username: String) -> Self {
+    pub fn new(id: i64, username: String) -> Self {
         Self { id, username }
     }
 
@@ -70,7 +73,7 @@ impl User {
 
     pub fn auth_token(self) -> Result<String, AppError> {
         let key = HS256Key::from_bytes(SECRET_KEY);
-        let claims = Claims::with_custom_claims(UserClaims::from(self), Duration::from_mins(10));
+        let claims = Claims::with_custom_claims(UserClaims::from(self), Duration::from_days(7));
         let token = key.authenticate(claims)?;
         Ok(token)
     }
